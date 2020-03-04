@@ -3,11 +3,13 @@
 
 import pytest
 import numpy as np
-from shapely.geometry import Point
+from shapely.geometry import Point, Polygon
 from geopandas import GeoSeries, GeoDataFrame
 
 import keras_spatial.grid as grid
 from keras_spatial.samples import regular_grid, random_grid, point_grid
+from keras_spatial.samples import mask_samples
+
 
 
 __author__ = "Jeff Terstriep"
@@ -56,6 +58,22 @@ def test_random_grid():
     assert df.total_bounds[1] >= bounds[1]
     assert df.total_bounds[2] <= bounds[2]
     assert df.total_bounds[3] <= bounds[3]
+
+def test_mask_samples():
+    bounds, shape, crs = grid.raster_meta('data/small.tif')
+    minx, miny, maxx, maxy = bounds
+    size = ((maxx - minx)/10, (maxy - miny)/10)
+    samples = regular_grid(*bounds, *size, crs=crs)
+
+    geom = Polygon(((minx,miny), (maxx,maxy), (maxx,miny), (minx,miny)))
+
+    mask = GeoDataFrame(index=[0], crs=crs, geometry=[geom])
+
+    masked_strict = mask_samples(samples, mask)
+    assert len(samples) > len(masked_strict)
+
+    masked_intersect = mask_samples(samples, mask, strict=False)
+    assert len(masked_intersect) > len(masked_strict)
 
 def test_point_grid():
     bounds, _, _ = grid.raster_meta('data/small.tif')

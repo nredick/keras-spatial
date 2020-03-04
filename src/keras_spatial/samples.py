@@ -20,22 +20,27 @@ __license__ = "ncsa"
 _logger = logging.getLogger(__name__)
 
 
-## TODO complete
-def mask_grid(dataframe, fname, hard=False):
-    """Filter dataframe removing patches outside an area.
+def mask_samples(samples, mask, strict=True):
+    """Filter dataframe removing samples outside an area.
 
     Args:
-      dataframe (GeoDataFrame): dataframe contain grid
-      fname (str): file path to vector boundary
-      hard (bool): if true, patches must be fully within boundary
+      samples (GeoDataFrame): gdf containing sample boundaries
+      mask (GeoDataFrame): gdf containing mask
+      strict (bool): if True samples must be completely within mask, False
+                     includes samples intersecting mask boundary
 
     Returns:
       geopandas.GeoDataFrame:
     """  
 
-    if isinstance(fname, str):
-        with fiona.open(fname) as mask:
-            pass
+    if samples.crs == None:
+        raise RuntimeError('Sample GeoDataFrame does not have a valid CRS')
+
+    m = mask.to_crs(samples.crs)
+    if strict:
+        return samples[samples.geometry.within(mask.geometry.unary_union)]
+    else:
+        return samples[samples.geometry.intersects(mask.geometry.unary_union)]
 
 
 def sample_size(dataframe):
@@ -52,7 +57,8 @@ def sample_size(dataframe):
     return (abs(left - right), abs(top - bottom))
 
 
-def regular_grid(xmin, ymin, xmax, ymax, xsize, ysize, overlap=0, crs=None):
+def regular_grid(xmin, ymin, xmax, ymax, xsize, ysize, overlap=0, 
+        crs=None, mask=None):
     """Generate regular grid over extent.
 
     Args:
@@ -64,9 +70,10 @@ def regular_grid(xmin, ymin, xmax, ymax, xsize, ysize, overlap=0, crs=None):
       ysize (float): patch height
       overlap (float): percentage of patch overlap (optional)
       crs (CRS): crs to assign geodataframe 
+      mask (bool): samples outside a mask are removed
 
     Returns:
-      geopandas.GeoDataFrame:
+      (GeoDataFrame)
     """
 
     x = np.linspace(xmin, xmax-xsize, num=(xmax-xmin)//(xsize-xsize*overlap))
@@ -76,10 +83,15 @@ def regular_grid(xmin, ymin, xmax, ymax, xsize, ysize, overlap=0, crs=None):
 
     gdf = gpd.GeoDataFrame({'geometry':polys})
     gdf.crs = crs
+
+    if mask:
+        gdf = mask_samples(gdf, mask)
+
     return gdf
 
 
-def random_grid(xmin, ymin, xmax, ymax, xsize, ysize, count, crs=None):
+def random_grid(xmin, ymin, xmax, ymax, xsize, ysize, count, 
+        crs=None, mask=None):
     """Generate random grid over extent.
 
     Args:
@@ -91,6 +103,7 @@ def random_grid(xmin, ymin, xmax, ymax, xsize, ysize, count, crs=None):
       ysize (float): patch height
       count (int): number of patches
       crs (CRS): crs to assign geodataframe 
+      mask (bool): samples outside a mask are removed
 
     Returns:
       (GeoDataFrame)
@@ -102,6 +115,10 @@ def random_grid(xmin, ymin, xmax, ymax, xsize, ysize, count, crs=None):
 
     gdf = gpd.GeoDataFrame({'geometry':polys})
     gdf.crs = crs
+
+    if mask:
+        gdf = mask_samples(gdf, mask)
+
     return gdf
 
 
