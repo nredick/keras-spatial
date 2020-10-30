@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import collections
 import rasterio
 from rasterio.vrt import WarpedVRT
@@ -17,14 +18,14 @@ class SpatialDataGenerator(object):
 
     def __init__(self, source=None, indexes=None, 
             width=0, height=0, batch_size=32,
-            crs=None, interleave='pixel', resampling=Resampling.nearest,
+            crs=None, interleave='band', resampling=Resampling.nearest,
             preprocess=None):
         """
 
         Args:
+          source (str): raster file path
           width (int): sample width in pixels
           height (int): sample height in pixels
-          source (str): raster file path or OPeNDAP server
           indexes (int|[int]): raster file band (int) or bands ([int,...])
                   (default=None for all bands)
           crs (CRS): produces patches in different crs
@@ -203,8 +204,15 @@ class SpatialDataGenerator(object):
             top, right = src.index(bounds[3], bounds[4])
             window = rasterio.windows.Window(left, top, right-left, bot-top)
             batch.append(src.read(indexes=self.indexes, window=window))
-            if self.interleave == 'pixel' and len(batch[-1].shape) == 3:
+
+            # single band reads return a 2d array, expand to 3d
+            if self.interleave == 'band' and len(batch[-1].shape) == 2:
+                batch[-1] = np.expand_dims(batch[-1], axis=0)
+
+            # pixel interleave with multiple bands move axis
+            if self.interleave == 'pixel' and batch[-1].shape[0] > 1:
                 batch[-1] = np.moveaxis(batch[-1], 0, -1)
+
             for func,args,kwargs in self.preprocess.values():
                 batch[-1] = func(batch[-1], *args, **kwargs)
 
@@ -215,7 +223,9 @@ class SpatialDataGenerator(object):
 
         Args:
           dataframe (geodataframe): dataframe with spatial extents
-          batch_size (int): batch size to process (default=32)
+          width (int): array width
+          height (int): array height
+          batch_size (int): batch size to process
 
         Returns:
           Iterator[ndarray]
