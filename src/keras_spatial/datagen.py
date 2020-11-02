@@ -120,12 +120,13 @@ class SpatialDataGenerator(object):
     def regular_grid(self, width, height, overlap=0.0, units='native'):
         """Create a dataframe that defines the a regular grid of samples.
 
-        The width and height are given in pixels and multiplied by the
-        pixel size of the raster to create samples at the native
-        resolution of the raster.
+        When units='native', width and height are given in projection
+        units (i.e. meters, feet, etc). The number of pixels within this
+        area would depend on the pixel size. If units='pixel', width
+        and height are multiplied by the pixel size to compute the
+        sample boundaries.
 
-        Note: in this context width and height are unrelated to the 
-        DL model inputs.
+        Note: width and height are unrelated to the DL model inputs.
 
         Args:
           width (int): sample size 
@@ -154,11 +155,13 @@ class SpatialDataGenerator(object):
     def random_grid(self, width, height, count, units='native'):
         """Create a dataframe that defines a random set of samples.
 
-        The width and height are given in pixels and multiplied by the
-        pixel size of the raster to create samples at the native
-        resolution of the raster.
+        When units='native', width and height are given in projection
+        units (i.e. meters, feet, etc). The number of pixels within this
+        area would depend on the pixel size. If units='pixel', width
+        and height are multiplied by the pixel size to compute the
+        sample boundaries.
 
-        Note: width and height unrelated to the DL model inputs.
+        Note: width and height are unrelated to the DL model inputs.
 
         Args:
           width (int): sample size in pixels
