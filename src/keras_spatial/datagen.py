@@ -114,7 +114,7 @@ class SpatialDataGenerator(object):
         self.src = rasterio.open(source)
 
         idx = getattr(self, 'indexes', None)
-        if idx is None:
+        if idx is None or idx == -1:
             self.indexes = list(range(1, self.src.count+1))
 
     def regular_grid(self, width, height, overlap=0.0, units='native'):
