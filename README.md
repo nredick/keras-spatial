@@ -32,7 +32,7 @@ pip install keras-spatial
 or directly from GitHub
 
 ```
-$ pip install git+https://github.com/IllinoisStateGeologicalSurvey/keras-spatial#egg=keras-spatial --process-dependency-links
+$ pip install git+https://github.com/ncsa/keras-spatial#egg=keras-spatial --process-dependency-links
 ```
 
 ## Quickstart
@@ -84,8 +84,8 @@ few arguments.
 - resampling (int): One of the values from rasterio.enums.Resampling 
 (default=Resampling.nearest)
 
-Raises RasterioIOError when the source is set if the file or remote 
-resource is not available.
+Raises RasterioIOError when the source is set if the file does not exist
+or remote resource is not available.
 
 ###### Examples
 
@@ -95,29 +95,43 @@ from keras_spatial import SpatialDataGenerator
 sdg = SpatialDataGenerator(source='/path/to/file.tif')
 sdg.width, sdg.height = 128,128
 ```
-The source must be set prior to calling flow_from_dataframe.  Width and 
-height are also required but maybe passed as arguments to flow_from_dataframe.
+The source must be set prior to calling flow_from_dataframe. Width and 
+height can set as attributes to the SDG or as arguments to 
+flow_from _dataframe but specifying as arguments to flow_from_dataframe
+is preferred.
 
 The _indexes_ argument selects bands in a multiband raster. By default 
 all bands are read and the _indexes_ argument is updated when the raster 
 _source_ is set.
 
-In multiband situations, if _interleave_ is set to 'band' the numpy array axes
-are moved to the following order [batch_size, bands, height, width].  This 
-can lead to incompatible shapes when using multiple SDG generators -- 
-use with care. The default interleave is 'pixel' which is compatible with
-Tensorflow.
+In multiband situations, if _interleave_ is set to 'band' (the default) 
+the numpy array will have the shape [batch_size, bands, height, width]
+and is compatible with TensorFlow. If _interleave_ is set to 'pixel', the 
+shape will be [batch_size, height, width, bands] which is not generally
+what you want, use with care.
 
 ```Python
 # file.tif is a 5 band raster
 sdg = SpatialDataGenerator('/path/to/file.tif')
-gen = sdg.flow_from_dataframe(df, 128, 128, batch_size=1)
-print(next(gen).shape)
-> [1, 128, 128, 5]
-sdg.interleave = 'band'
-gen = sdg.flow_from_dataframe(df, 128, 128, batch_size=1)
-print(next(gen.shape))
-> [1, 5, 200, 200]
+sdg.interleave, sdg.indexes = 'band', -1
+arr = next(sdg.flow_from_dataframe(df, 128, 128, batch_size=1))
+print(arr.shape)
+> [1, 5, 128, 128]
+
+sdg.interleave, sdg.indexes = 'band', 1
+arr = next(sdg.flow_from_dataframe(df, 128, 128, batch_size=1))
+print(arr.shape)
+> [1, 1, 128, 128]
+
+sdg.interleave, sdg.indexes = 'pixel', [1,2,3]
+arr = next(sdg.flow_from_dataframe(df, 128, 128, batch_size=1))
+print(arr.shape)
+> [1, 128, 128, 3]
+
+sdg.interleave, sdg.indexes = 'pixel', 1
+arr = next(sdg.flow_from_dataframe(df, 128, 128, batch_size=1))
+print(arr.shape)
+> [1, 128, 128]
 ```
 
 Because more than one SDG is expected to be used simultaneously and SDGs 
@@ -172,7 +186,7 @@ spatial extents.
 - width (int): width in pixels
 - height (int): height in pixels
 - count (int): number of samples
-- units (str): units for width and height, either native or in pixels
+- units (str): units for width and height, either native (projection units) or in pixels
 
 ##### Returns
 A GeoDataFrame defining the polygon boundary of each sample.
@@ -205,6 +219,32 @@ A GeoDataFrame defining the polygon boundary of each sample.
 ```Python
 sdg = SpatialDataGenerator(source='/path/to/file.tif')
 df = sdg.regular_grid(200, 200)
+```
+
+### File Generation and File Caching
+
+Keras Spatial provides tools to utilize SDGs and GeoDataFrames to
+simplify the generation of individual samples in the form of numpy arrays.
+A FileCache class provides a flow_from_files method to create a generator
+that reads directly from numpy files.
+
+The following code will generate 10 samples from the source TIF file
+and save them as numpy arrays. The filenames is a pandas Series using the
+same index as the initial GeoDataFrame so that it can be easily joined.
+
+```Python
+sdg = SpatialDataGenerator(source='/path/to/file.tif')
+df = sdg.random_grid(200, 200, count=10)
+filenames = keras_spatial.filecache.flow_to_numpy('/local/path')
+```
+
+This second examples finds the files on the numpy files on the local 
+disk and create a generator.
+
+```Python
+fc = keras_spatial.filecache.FileCache('looal/path')
+fc.find_file()
+model(fc.flow_from_files())
 ```
 
 ## Full Example
