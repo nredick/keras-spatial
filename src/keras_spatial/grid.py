@@ -96,8 +96,10 @@ def regular_grid(xmin, ymin, xmax, ymax, xsize, ysize, overlap=0, crs=None):
       geopandas.GeoDataFrame:
     """
 
-    x = np.linspace(xmin, xmax-xsize, num=(xmax-xmin)//(xsize-xsize*overlap))
-    y = np.linspace(ymin, ymax-ysize, num=(ymax-ymin)//(ysize-ysize*overlap))
+    x = np.linspace(xmin, xmax-xsize, 
+            num=int(xmax-xmin) // (xsize-xsize*overlap)))
+    y = np.linspace(ymin, ymax-ysize, 
+            num=int(ymax-ymin) // (ysize-ysize*overlap)))
     X,Y = np.meshgrid(x, y)
     polys = [box(x, y, x+xsize, y+ysize) for x,y in np.nditer([X,Y])]
 
