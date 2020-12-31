@@ -24,12 +24,13 @@ def normalize(arr, gmin, gmax, layer=0):
         return arr
 
 from scipy import signal
-def terrain_analysis(array, size):
+def terrain_analysis(array, size, layer=0):
     """calculate terrain derivatives based on the Evans Young method
 
     Args:
       array (ndarray): elevation data array
       size (float,float): size of sample in projected coordinates
+      layer (int): array index containing DEM layer
 
     Returns:
       (ndarray): 3d array with original elevation data and derivatives
@@ -53,6 +54,7 @@ def terrain_analysis(array, size):
          [0,0,0],
          [(1/(4*(px*py))),0,(-1/(4*(px*py)))]]
 
+    array = array[layer, :, :]
     gi = signal.convolve2d(array, g, boundary='symm', mode='same')
     hi = signal.convolve2d(array, h, boundary='symm', mode='same')
     di = signal.convolve2d(array, d, boundary='symm', mode='same')
