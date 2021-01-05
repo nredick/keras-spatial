@@ -2,10 +2,14 @@ name: keras-spatial
 channels:
     - conda-forge
     - default
+
+# minimal dependencies and versioning to help build
+# a complex software stack
 dependencies:
     - python>=3.6
     - rasterio
     - geopandas
+    - matplotlib
     - pip
     - pip:
         - keras-spatial

@@ -22,6 +22,8 @@ Features include:
 * Sample augmentation using user-defined callback system
 * Flexible structure improves organization and data management
 
+Try Keras Spatial is avialble at [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NCSA/keras-spatial/HEAD).
+
 ## Installation
 To install the package from PyPi repository you can execute the following command:
 
