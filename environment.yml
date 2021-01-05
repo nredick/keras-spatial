@@ -1,0 +1,12 @@
+name: keras-spatial
+channels:
+    - conda-forge
+    - default
+dependencies:
+    - python>=3.6
+    - rasterio
+    - geopandas
+    - pip
+    - pip:
+        - keras-spatial
+
