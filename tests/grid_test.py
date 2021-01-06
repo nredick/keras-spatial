@@ -13,8 +13,8 @@ from keras_spatial.samples import mask_samples
 
 
 __author__ = "Jeff Terstriep"
-__copyright__ = "Jeff Terstriep"
-__license__ = "mit"
+__copyright__ = "University of Illinois Board of Trustees"
+__license__ = "ncsa"
 
 
 def test_raster_meta():
@@ -25,15 +25,31 @@ def test_raster_meta():
 
 def test_regular_grid():
     bounds, _, _ = grid.raster_meta('data/small.tif')
-    size = (bounds[2]-bounds[0], bounds[3]-bounds[1])
-    size = [i/10 for i in size]
 
-    df = regular_grid(*bounds, *size)
-    assert len(df) == 100
+    df = regular_grid(*bounds, 5, 5)
+    assert len(df) == 40000
     assert df.total_bounds[0] >= bounds[0]
     assert df.total_bounds[1] >= bounds[1]
     assert df.total_bounds[2] <= bounds[2]
     assert df.total_bounds[3] <= bounds[3]
+
+    df = regular_grid(*bounds, 200, 200)
+    assert len(df) == 25
+    assert df.total_bounds[0] >= bounds[0]
+    assert df.total_bounds[1] >= bounds[1]
+    assert df.total_bounds[2] <= bounds[2]
+    assert df.total_bounds[3] <= bounds[3]
+
+def test_regular_grid_oversize():
+    bounds, _, _ = grid.raster_meta('data/small.tif')
+
+    df = regular_grid(*bounds, 5000, 5000)
+    assert len(df) == 1
+    assert df.total_bounds[0] == bounds[0]
+    assert df.total_bounds[1] == bounds[1]
+    assert df.total_bounds[2] >= bounds[2]
+    assert df.total_bounds[3] >= bounds[3]
+
 
 def test_regular_grid_overlap():
     bounds, _, _ = grid.raster_meta('data/small.tif')
