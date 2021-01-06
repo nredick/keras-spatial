@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
+Function used to create and populate sample dataframes. 
 """
 
 import logging
@@ -61,6 +62,9 @@ def regular_grid(xmin, ymin, xmax, ymax, xsize, ysize, overlap=0,
         crs=None, mask=None):
     """Generate regular grid over extent.
 
+    Note: if requested size is larger than the raster then a single sample
+    dataframe is returned using raster origin and sample size.
+
     Args:
       xmin (float): extent left boundary
       ymin (float): extent bottom boundary
@@ -76,10 +80,16 @@ def regular_grid(xmin, ymin, xmax, ymax, xsize, ysize, overlap=0,
       (GeoDataFrame)
     """
 
-    x = np.linspace(xmin, xmax-xsize, num=(xmax-xmin)//(xsize-xsize*overlap))
-    y = np.linspace(ymin, ymax-ysize, num=(ymax-ymin)//(ysize-ysize*overlap))
-    X,Y = np.meshgrid(x, y)
-    polys = [box(x, y, x+xsize, y+ysize) for x,y in np.nditer([X,Y])]
+    x = np.linspace(xmin, xmax-xsize, 
+            num=max(1, int((xmax-xmin)//(xsize-xsize*overlap))))
+    y = np.linspace(ymin, ymax-ysize, 
+            num=max(1, int((ymax-ymin)//(ysize-ysize*overlap))))
+
+    try:
+        X,Y = np.meshgrid(x, y)
+        polys = [box(x, y, x+xsize, y+ysize) for x,y in np.nditer([X,Y])]
+    except ValueError as e:
+        polys = [box(xmin, ymin, xmin+xsize, ymin+ysize),]
 
     gdf = gpd.GeoDataFrame({'geometry':polys})
     gdf.crs = crs
