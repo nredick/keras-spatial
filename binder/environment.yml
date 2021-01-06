@@ -12,5 +12,5 @@ dependencies:
     - matplotlib
     - pip
     - pip:
-        - keras-spatial==1.0.6
+        - keras-spatial==1.0.7
 
