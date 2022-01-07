@@ -25,10 +25,23 @@ Features include:
 Try Keras Spatial is avialble at [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NCSA/keras-spatial/HEAD?filepath=examples%2Fquickstart.ipynb).
 
 ## Installation
-To install the package you can execute the following command:
+
+
+1. Create a conda environment with Tensorflow  
 
 ```
-$ pip install git+https://github.com/a2soliman/keras-spatial#egg=keras-spatial --process-dependency-links
+conda create -n keras-spatial -c anaconda tensorflow
+```
+
+2. Add matplotlib to the conda environment for visualization 
+
+```
+conda install -c conda-forge matplotlib
+```
+3. Install the package by executing the following command:
+
+```
+$ pip install git+https://github.com/a2soliman/keras-spatial#egg=keras-spatial 
 ```
 
 ## Quickstart
