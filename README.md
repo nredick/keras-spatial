@@ -25,13 +25,7 @@ Features include:
 Try Keras Spatial is avialble at [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NCSA/keras-spatial/HEAD?filepath=examples%2Fquickstart.ipynb).
 
 ## Installation
-To install the package from PyPi repository you can execute the following command:
-
-```
-pip install keras-spatial
-```
-
-or directly from GitHub
+To install the package you can execute the following command:
 
 ```
 $ pip install git+https://github.com/a2soliman/keras-spatial#egg=keras-spatial --process-dependency-links
