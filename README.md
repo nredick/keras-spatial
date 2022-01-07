@@ -41,7 +41,7 @@ conda install -c conda-forge matplotlib
 3. Install the package by executing the following command:
 
 ```
-$ pip install git+https://github.com/a2soliman/keras-spatial#egg=keras-spatial 
+pip install git+https://github.com/a2soliman/keras-spatial#egg=keras-spatial 
 ```
 
 ## Quickstart
