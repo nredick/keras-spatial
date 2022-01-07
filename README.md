@@ -34,7 +34,7 @@ pip install keras-spatial
 or directly from GitHub
 
 ```
-$ pip install git+https://github.com/ncsa/keras-spatial#egg=keras-spatial --process-dependency-links
+$ pip install git+https://github.com/a2soliman/keras-spatial#egg=keras-spatial --process-dependency-links
 ```
 
 ## Quickstart
