@@ -27,21 +27,10 @@ Try Keras Spatial is avialble at [![Binder](https://mybinder.org/badge_logo.svg)
 ## Installation
 
 
-1. Create a conda environment with Tensorflow  
+Install the package by executing the following command:
 
 ```
-conda create -n keras-spatial -c anaconda tensorflow 
-```
-
-2. Add matplotlib and Jupyter Lab to the conda environment 
-
-```
-conda install -c conda-forge matplotlib jupyterlab
-```
-3. Install the package by executing the following command:
-
-```
-pip install git+https://github.com/a2soliman/keras-spatial#egg=keras-spatial 
+pip install git+https://github.com/nredick/keras-spatial#egg=keras-spatial --process-dependency-links
 ```
 
 ## Quickstart
